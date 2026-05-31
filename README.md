@@ -103,8 +103,16 @@ Place your completed `print.sh` in `solutions/` and commit. Then link it here:
 #### Reflection Questions
 
 1. **What is the difference between `printf` and `echo` in Bash?**
+   - `echo` gibt Text einfach aus und ist schnell für unkomplizierte Ausgaben
+   - `printf` erlaubt genaue Formatierung mit Platzhaltern wie `%s` oder `%d` und ist dadurch flexibler
+
 2. **What is the role of `~/.bashrc` in your shell environment?**
+   - `~/.bashrc` wird jedes Mal ausgeführt, wenn eine neue interaktive Bash-Shell gestartet wird, und setzt so deine persönliche Umgebung
+   - Dort kann man z. B. Aliase, Variablen, den Prompt (`PS1`) oder Startbefehle wie Begrüßungsnachrichten definieren
+
 3. **Explain the difference between sourcing (`source ~/.bashrc`) and executing (`./print.sh`).**
+   - `source ~/.bashrc`** führt die Datei im *aktuellen Shell-Prozess* aus, dadurch bleiben Änderungen (z. B. Variablen oder Prompt) direkt aktiv.
+   - `./print.sh`** startet ein *neues, separates Programm (Subshell)*, Änderungen darin beeinflussen die aktuelle Shell nicht.
 
 ---
 
@@ -159,9 +167,21 @@ _start:
 
 #### Reflection Questions
 
+
 1. **What is a file descriptor and how does the OS use it?**
+   
+Ein File Descriptor ist eine kleine Zahl, die vom Betriebssystem verwendet wird, um geöffnete Dateien oder andere I/O-Ressourcen (z. B. Dateien, Pipes, Sockets) zu identifizieren
+Das Betriebssystem nutzt ihn, um Lese- und Schreibzugriffe den richtigen Ressourcen zuzuordnen (z. B. stdin, stdout, stderr)
+
 2. **How can you obtain or duplicate a file descriptor for another resource (e.g., a file or socket)?**
+
+Einen File Descriptor erhält man durch Systemaufrufe wie open() oder socket()
+Duplizieren kann man ihn mit dup() oder dup2(), z. B. um Ein- oder Ausgabe umzuleiten
+
 3. **What might happen if you use an invalid file descriptor in a syscall?**
+   
+Der Systemcall schlägt fehl und gibt einen Fehler zurück (z. B. EBADF)
+Es können keine Daten gelesen oder geschrieben werden, da die Ressource nicht existiert oder bereits geschlossen ist
 
 ---
 
@@ -199,10 +219,28 @@ int main(void) {
 
 #### Reflection Questions
 
-1. **Use `objdump -d` on `print_c` to find the assembly instructions corresponding to your `printf` calls.**
-2. **Why is the syntax written differently from GAS assembly? Compare NASM vs. GAS notation.**
-3. **How could you use `fprintf` to write output both to `stdout` and to a file instead? Provide example code.**
 
+
+
+1. **Use `objdump -d` on `print_c` to find the assembly instructions corresponding to your `printf` calls.**
+Mit objdump -d print_c sieht man den disassemblierten Maschinencode des Programms
+Die printf-Aufrufe erscheinen meist als call printf@plt (oder puts@plt), weil die Funktion über die C-Standardbibliothek dynamisch gelinkt wird
+
+2. **Why is the syntax written differently from GAS assembly? Compare NASM vs. GAS notation.**
+GAS (GNU Assembler) verwendet z. B. %eax, $1 und Source-Destination-Reihenfolge movl $1, %eax
+NASM verwendet keine % oder $ und schreibt z. B. mov eax, 1
+Unterschied entsteht durch verschiedene Assembler-Syntax-Designs (Intel vs. AT&T Syntax)
+
+3. **How could you use `fprintf` to write output both to `stdout` and to a file instead? Provide example code.**
+```c
+int main(void) {
+    FILE *fp = fopen("output.txt", "w");
+    fprintf(stdout, "Output to terminal\n");
+    fprintf(fp, "Output to file\n");
+    fclose(fp);
+    return 0;
+}
+```
 ---
 
 ### Task 4: Python 3 Printing
@@ -241,8 +279,17 @@ if __name__ == "__main__":
 
 #### Reflection Questions
 
-1. **Is Python’s print behavior closer to Bash, Assembly, or C? Explain.**
-2. **Can you inspect a Python script’s binary with `objdump`? Why or why not?**
+**1. Is Python’s `print` behavior closer to Bash, Assembly, or C? Explain.**
+
+* Python’s `print()` ist am ehesten mit C vergleichbar
+* Wie `printf` in C schreibt es formatierten Text auf die Standardausgabe und unterstützt mehrere Werte und Formatierung
+* Im Gegensatz zu Bash oder Assembly ist es jedoch deutlich höher abstrahiert und übernimmt viele Konvertierungen automatisch
+
+**2. Can you inspect a Python script’s binary with `objdump`? Why or why not?**
+
+* Nein, ein Python-Skript kann man nicht sinnvoll mit `objdump` untersuchen
+* `objdump` ist für kompilierte Binärdateien gedacht, die direkten Maschinencode enthalten
+* Python-Dateien sind Quelltext und werden erst zur Laufzeit vom Interpreter ausgeführt
 
 ---
 
